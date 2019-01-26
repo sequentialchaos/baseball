@@ -1,0 +1,17 @@
+BOX SCORE URLS:
+
+AAA = Home Team Abbreviation
+BBBBB = Either Team Mascot (e.g. Diamondbacks)
+YYYY = Year of Game
+MM = Month of Game
+DD = Day of Game
+X = 0 if single game, 1 if first game of double header, 2 if second game of double header
+
+Baseball-Reference
+URL = https://www.baseball-reference.com/boxes/AAA/AAAYYYYMMDDX.shtml
+
+Fangraphs
+URL_BOX = https://www.fangraphs.com/boxscore.aspx?date=YYYY-MM-DD&team=BBBBB&dh=X
+URL_PLAYS = https://www.fangraphs.com/plays.aspx?date=YYYY-MM-DD&team=BBBBB&dh=X
+URL_GRAPHS = https://www.fangraphs.com/wins.aspx?date=YYYY-MM-DD&team=BBBBB&dh=X
+

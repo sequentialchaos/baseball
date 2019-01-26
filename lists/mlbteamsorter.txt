@@ -1,0 +1,31 @@
+Rank	Team
+1	Atlanta Braves
+2	Cleveland Indians
+3	Oakland Athletics
+4	Chicago Cubs
+5	Tampa Bay Rays
+6	Los Angeles Angels of Anaheim
+7	Baltimore Orioles
+8	Pittsburgh Pirates
+9	Seattle Mariners
+10	Colorado Rockies
+11	Los Angeles Dodgers
+12	Houston Astros
+13	New York Mets
+14	Milwaukee Brewers
+15	Arizona Diamondbacks
+16	Minnesota Twins
+17	San Diego Padres
+18	Texas Rangers
+18	Toronto Blue Jays
+20	Miami Marlins
+21	Cincinnati Reds
+22	Chicago White Sox
+23	Detroit Tigers
+24	Boston Red Sox
+25	New York Yankees
+26	San Francisco Giants
+27	Kansas City Royals
+28	Saint (St.) Louis Cardinals
+29	Philadelphia Phillies
+30	Washington Nationals
