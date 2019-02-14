@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible">
+  <title>MLB Black Ink vs. Gray Ink</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <style type="text/css">
+    .axis {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    circle:hover {
+      opacity: 0.8;
+    }
+
+    #tooltip {
+      position: absolute;
+      width: 140px;
+      height: auto;
+      padding: 10px;
+      background-color: white;
+      -webkit-border-radius: 10px;
+      -moz-border-radius: 10px;
+      border-radius: 10px;
+      -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      pointer-events: none;
+    }
+
+    #tooltip.hidden {
+      display: none;
+    }
+
+    #tooltip p {
+      margin: 0;
+      font-family: sans-serif;
+      font-size: 16px;
+      line-height: 20px;
+    }
+
+    #tooltip p strong {
+      margin: 0;
+      font-family: sans-serif;
+      font-size: 18px;
+      line-height: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="options">
+      Hall of Famers<input type="checkbox" class="hall_of_fame" value="hall_of_fame" checked>
+      Non Hall of Famers<input type="checkbox" value="not_hall_of_fame" checked>
+      Ineligible<input type="checkbox" value="ineligible" checked>
+  </div>
+  
+  <div id="tooltip" class="hidden">
+    <p>
+      <strong>
+        <span id="name">Player Name</span>
+      </strong>
+    </p>
+    <p>
+      Black Ink:
+      <span id="black_ink"> #</span>
+    </p>
+    <p>
+      Gray Ink:
+      <span id="gray_ink"> #</span>
+    </p>
+  </div>
+
+  <div id="chart">
+    <svg width="1000" height="700"></svg>
+    <script type="text/javascript">
+      // Global variables
+      console.log(d3.select("div#options .hall_of_fame").attr("checked") == null);
+      
+      let svg = d3.select("div#chart svg"),
+        margin = { top: 30, right: 25, bottom: 75, left: 75 },
+        width = svg.attr("width") - margin.left - margin.right,
+        height = svg.attr("height") - margin.top - margin.bottom,
+        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      // Define scales with their ranges
+      let x = d3.scaleLinear()
+        //.exponent(0.2)
+        .range([0, width]);
+      let y = d3.scaleLinear()
+        //.exponent(0.2)
+        .range([height, 0]);
+
+      // CSV
+      let csvfile = "../../../data/bbref/bbref_ink_batting.csv";
+      d3.csv(csvfile, function (d) {
+        let name = d["Player Name"];
+        let formattedName = name;
+        let lastIndex = name.length - 1;
+
+        let inHoF = false;
+        if ("*" == name[lastIndex]) {
+          inHoF = true;
+          formattedName = name.substring(0, lastIndex);
+        }
+
+        let isEligible = true;
+        if ("+" == name[lastIndex]) {
+          isEligible = false;
+          formattedName = name.substring(0, lastIndex);
+        }
+
+        return {
+          name: formattedName,
+          black_ink: +d["Black Ink"],
+          gray_ink: +d["Gray Ink"],
+          hall_of_fame: inHoF,
+          eligible: isEligible
+        };
+      })
+        .then(function (data) {
+          let players = data;
+          console.log(players);
+          
+          let xMin = d3.min(players, p => p.black_ink) - 1;
+          let xMax = d3.max(players, p => p.black_ink) + 1;
+          let yMin = d3.min(players, p => p.gray_ink) - 2;
+          let yMax = d3.max(players, p => p.gray_ink) + 1;
+          // Set domains for the scales based on the data
+          x.domain([xMin, xMax]);  // Black on x 
+          y.domain([yMin, yMax]) ; // Gray on y
+
+          // Draw axes with labels to SVG
+          // X axis - Black Ink
+          g.append("g")
+            .attr("class", "axis axis_x")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x).ticks(20))//Values([2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150]))
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", margin.bottom - 23)
+            .attr("dy", "0.30em")
+            .style("font-size", 23)
+            .style("text-anchor", "middle")
+            .style("fill", "black")
+            .style("font-weight", "bold")
+            .text("Black Ink");
+
+          // Y axis - Gray Ink
+          g.append("g")
+            .attr("class", "axis axis_y")
+            .call(d3.axisLeft(y))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", 23 - margin.left)
+            .attr("dy", "0.30em")
+            .style("font-size", 23)
+            .style("text-anchor", "middle")
+            .style("fill", "gray")
+            .style("font-weight", "bold")
+            .text("Gray Ink");
+
+          // Draw median lines
+          g.append("g")
+            .attr("class", "median horizontal")
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", width + margin.right)
+            .attr("y1", y(d3.mean(players, p => p.gray_ink)))
+            .attr("y2", y(d3.mean(players, p => p.gray_ink)))
+            .attr("stroke", "black")
+            .attr("stroke-width", 4)
+            .attr("stroke-dasharray", 4);
+
+          g.append("g")
+            .attr("class", "median vertical")
+            .append("line")
+            .attr("x1", x(d3.mean(players, p => p.black_ink)))
+            .attr("x2", x(d3.mean(players, p => p.black_ink)))
+            .attr("y1", 0)
+            .attr("y2", height)
+            .attr("stroke", "black")
+            .attr("stroke-width", 4)
+            .attr("stroke-dasharray", 4);
+
+          // Draw points
+          g.append("g")
+            .attr("class", "point")
+            .selectAll("circle")
+            .data(players)
+            .enter()
+            .append("circle")
+            .attr("class", function(p) {
+              if (p.hall_of_fame)
+                return "hall_of_fame";
+              if (!p.eligible)
+                return "ineligible";
+              return "not_hall_of_fame";
+            })
+            .attr("cx", p => x(p.black_ink))
+            .attr("cy", p => y(p.gray_ink))
+            .attr("r", 5)
+            .attr("fill", function (p) {
+              if (p.hall_of_fame)
+                return "gold";
+              if (!p.eligible)
+                return "#07E57B";
+              return "black";
+            })
+            .on("mouseover", function (p) {
+              var xPosition = x(p.black_ink) + 100;
+              var yPosition = y(p.gray_ink) + 70;
+
+              let tooltip = d3.select("#tooltip")
+                .style("left", xPosition + "px")
+                .style("top", yPosition + "px")
+
+              tooltip.select("#black_ink").text(p.black_ink);
+              tooltip.select("#gray_ink").text(p.gray_ink);
+              tooltip.select("span#name").text(p.name);
+
+              d3.select("#tooltip").classed("hidden", false);
+            })
+            .on("mouseout", function () {
+              d3.select("#tooltip").classed("hidden", true);
+            })
+          d3.select("div#options .hall_of_fame")
+            
+            .on("change", function(d) {
+              d3.selectAll("circle.hall_of_fame")
+                .classed("hidden", d3.select("div#options .hall_of_fame").attr("checked") != null ? true : false)
+            })
+          // Add legend
+          // svg.append("g")
+          //   .attr("class", "legend")
+          //   .attr("transform", "translate(50,30)")
+          //   .style("font-size", "12px")
+          //   .call(d3.legend);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+
+    </script>
+  </div>
+</body>
+
+</html>
