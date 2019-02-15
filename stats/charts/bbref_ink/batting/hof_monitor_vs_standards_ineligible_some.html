@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible">
+  <title>Baseball Hall of Fame Monitor vs. Hall of Fame Standards</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <style type="text/css">
+    .axis {
+      font-family: "Calibri";
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    #tooltip {
+      position: absolute;
+      width: 160px;
+      height: auto;
+      padding: 10px;
+      background-color: #FBEFEF;
+      -webkit-border-radius: 10px;
+      -moz-border-radius: 10px;
+      border-radius: 10px;
+      -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      pointer-events: none;
+    }
+
+    #tooltip.hidden {
+      display: none;
+    }
+
+    #tooltip p {
+      margin: 0;
+      font-family: sans-serif;
+      font-size: 16px;
+      line-height: 20px;
+    }
+
+    #tooltip p strong {
+      margin: 0;
+      font-family: sans-serif;
+      font-size: 18px;
+      line-height: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    circle:hover {
+      fill: #09E6EC;
+      stroke: black;
+    }
+
+    svg {
+      background-color: #DAE4E6;
+    }
+
+    .title {
+      font-family: "Calibri";
+    }
+  </style>
+</head>
+
+<body>
+  <div id="tooltip" class="hidden">
+    <p>
+      <strong>
+        <span id="name">Player Name</span>
+      </strong>
+    </p>
+    <p>
+      HoF Standards:
+      <span id="hof_standards"> #</span>
+    </p>
+    <p>
+      HoF Monitor:
+      <span id="hof_monitor"> #</span>
+    </p>
+  </div>
+
+  <div id="chart">
+    <svg width="1000" height="800"></svg>
+    <script type="text/javascript">
+      // Global variables    
+      let svg = d3.select("div#chart svg"),
+        margin = { top: 60, right: 25, bottom: 70, left: 75 },
+        width = svg.attr("width") - margin.left - margin.right,
+        height = svg.attr("height") - margin.top - margin.bottom,
+        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      // Define scales with their ranges
+      let x = d3.scaleLinear()
+        .range([0, width]);
+      let y = d3.scaleLinear()
+        .range([height, 0]);
+
+      // Voronoi
+      var voronoi = d3.voronoi()
+        .x(function (d) { return x(d.date); })
+        .y(function (d) { return y(d.value); })
+        .extent([[-margin.left, -margin.top],
+        [width + margin.right, height + margin.bottom]]);
+
+      // Colors
+      let colors = {
+        "hof_standards": "#770B0B",
+        "hof_monitor": "#1B353D",
+        "top_right": "#A0E8A8",
+        "top_left": "#D2F4BD",
+        "bottom_left": "#EF8686",
+        "bottom_right": "#D2F4BD"
+      }
+
+      // CSV
+      let csvfile = "../../../data/bbref/ink/batting_ineligible_through_2018.csv";
+      d3.csv(csvfile, function (d) {
+        return {
+          name: d.Name,
+          hof_monitor: +d.HoF_Monitor,
+          hof_standards: +d.HoF_Standards,
+        };
+      })
+        .then(function (data) {
+          let players = data;
+          console.log(players);
+
+          let xMin = d3.min(players, p => p.hof_standards) - 1;
+          let xMax = d3.max(players, p => p.hof_standards) + 1;
+          let yDomain = d3.extent(players, p => p.hof_monitor);
+
+          // Set domains for the scales based on the data
+          x.domain([xMin, xMax]);
+          y.domain(yDomain).nice();
+
+          // Draw axes with labels to SVG
+          // X axis - Hall of Fame Standards
+          g.append("g")
+            .attr("class", "axis axis_x")
+            .attr("transform", "translate(0," + height + ")")
+            .style("color", colors.hof_standards)
+            .call(d3.axisBottom(x).ticks(10))//Values([2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150]))
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", margin.bottom - 30)
+            .attr("dy", "0.30em")
+            .style("font-size", 23)
+            .style("text-anchor", "middle")
+            .style("fill", colors.hof_standards)
+            .style("font-weight", "bold")
+            .text("Hall of Fame Standards");
+
+          // Y axis - Hall of Fame Monitor
+          g.append("g")
+            .attr("class", "axis axis_y")
+            .style("color", colors.hof_monitor)
+            .call(d3.axisLeft(y))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", 23 - margin.left)
+            .attr("dy", "0.30em")
+            .style("font-size", 23)
+            .style("text-anchor", "middle")
+            .style("fill", colors.hof_monitor)
+            .style("font-weight", "bold")
+            .text("Hall of Fame Monitor");
+
+          // Quadrants
+          let quadrants = g.append("g")
+            .attr("class", "quadrant");
+
+          // Top-right quadrant
+          quadrants.append("rect")
+            .attr("x", x(50))
+            .attr("y", 0)
+            .attr("width", width - x(50))
+            .attr("height", y(100))
+            .attr("fill", colors.top_right);
+
+          // Top-left quadrant
+          quadrants.append("rect")
+            .attr("x", 1)
+            .attr("y", 0)
+            .attr("width", x(50))
+            .attr("height", y(100))
+            .attr("fill", colors.top_left);
+
+          // Bottom-left quadrant
+          quadrants.append("rect")
+            .attr("x", 1)
+            .attr("y", y(100))
+            .attr("width", x(50))
+            .attr("height", height - y(100))
+            .attr("fill", colors.bottom_left);
+
+          // Bottom-right quadrant
+          quadrants.append("rect")
+            .attr("x", x(50))
+            .attr("y", y(100))
+            .attr("width", width - x(50))
+            .attr("height", height - y(100))
+            .attr("fill", colors.bottom_right);
+
+          // Draw quadrant divider lines
+          // Horizontal - Hall of Fame Monitor
+          g.append("g")
+            .attr("class", "median horizontal")
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", y(100))
+            .attr("y2", y(100))
+            .attr("stroke", colors.hof_monitor)
+            .attr("stroke-width", 3)
+            .attr("stroke-dasharray", 4);
+
+          // Vertical - Hall of Fame Standards
+          g.append("g")
+            .attr("class", "median vertical")
+            .append("line")
+            .attr("x1", x(50))
+            .attr("x2", x(50))
+            .attr("y1", 0)
+            .attr("y2", height)
+            .attr("stroke", colors.hof_standards)
+            .attr("stroke-width", 3)
+            .attr("stroke-dasharray", 4);
+
+          // Draw points
+          g.append("g")
+            .attr("class", "point")
+            .selectAll("circle")
+            .data(players)
+            .enter()
+            .append("circle")
+            .attr("class", "player")
+            .attr("cx", p => x(p.hof_standards))
+            .attr("cy", p => y(p.hof_monitor))
+            .attr("r", 5)
+            .attr("fill", "#382828")
+            .attr("stroke", "black")
+            .on("mouseover", function (p) {
+              // Tooltips
+              var xPosition = x(p.hof_standards) + 92;
+              var yPosition = y(p.hof_monitor) + 64;
+
+              let tooltip = d3.select("#tooltip")
+                .style("left", xPosition + "px")
+                .style("top", yPosition + "px")
+
+              tooltip.select("#hof_standards").text(p.hof_standards);
+              tooltip.select("#hof_monitor").text(p.hof_monitor);
+              tooltip.select("span#name").text(p.name);
+
+              d3.select("#tooltip").classed("hidden", false);
+            })
+            .on("mouseout", function () {
+              d3.select("#tooltip").classed("hidden", true);
+            })
+
+          // Titles
+          let title = {
+            "text": "Hall of Fame Monitor vs. Hall of Fame Standards",
+            "size": 28,
+            "y": -30,
+            sub: {
+              "text": "Active hitters or retired after 2013 ",
+              "size": 16
+            }
+          }
+
+          // Main title    
+          g.append("text")
+            .attr("class", "title")
+            .attr("x", width / 2)
+            .attr("y", title.y)
+            .text(title.text)
+            .style("font-size", title.size)
+            .style("font-weight", "bold")
+            .style("text-anchor", "middle");
+
+          // Subtitle
+          g.append("text")
+            .attr("class", "title sub")
+            .attr("x", width / 2)
+            .attr("y", title.y + 20)
+            .text(title.sub.text)
+            .style("font-size", title.sub.size)
+            .style("font-style", "italic")
+            .style("text-anchor", "middle");
+
+          // Sources
+          let source = {
+            "label": "source: ",
+            "text": "www.baseball-reference.com",
+            "size": 14,
+            "link": "https://www.baseball-reference.com/",
+            "font_family": "Calibri"
+          }
+
+          g.append("a")
+            .attr("href", source.link)
+            .append("text")
+            .attr("x", -margin.left + 51)
+            .attr("y", height + margin.bottom - 5)
+            .attr("class", "source")
+            .text(source.text)
+            .style("font-size", source.size)
+            .style("font-weight", "bold")
+            .style("text-anchor", "start")
+            .style("font-family", source.font_family)
+            .style("font-style", "italic");
+
+          g.append("text")
+            .attr("x", -margin.left + 5)
+            .attr("y", height + margin.bottom - 5)
+            .attr("class", "source")
+            .text(source.label)
+            .style("font-size", source.size)
+            .style("font-weight", "bold")
+            .style("text-anchor", "start")
+            .style("font-family", source.font_family)
+
+          // Signature
+          let signature = {
+            "text": "@SequentialChaos",
+            "link": "https://twitter.com/sequentialchaos",
+            "size": 15,
+            "color": "#063C47"
+          }
+
+          g.append("a")
+            .attr("href", signature.link)
+            .append("text")
+            .attr("x", width + margin.right - 5)
+            .attr("y", height + margin.bottom - 5)
+            .attr("class", "signature")
+            .text(signature.text)
+            .style("fill", signature.color)
+            .style("font-size", signature.size)
+            .style("font-weight", "bold")
+            .style("text-anchor", "end")
+            .style("font-family", "Cambria");
+            
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+
+    </script>
+  </div>
+</body>
+
+</html>
