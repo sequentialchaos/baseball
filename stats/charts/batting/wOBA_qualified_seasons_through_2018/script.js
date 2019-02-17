@@ -28,7 +28,7 @@ d3.csv(csvfile, function(d) {
 
   // Calculate median wOBA for each season
   let seasons = d3.range(d3.min(dataset, d => d.season), d3.max(dataset, d => d.season) + 1);
-  console.log(seasons);
+  // console.log(seasons);
   let medians = [];
   seasons.forEach(season => {
     let rows = dataset.filter(d => d.season == season);
@@ -37,7 +37,7 @@ d3.csv(csvfile, function(d) {
       "wOBA" : d3.median(rows, r => r.wOBA)
     })
   });
-  console.log(medians);
+  // console.log(medians);
 
   // Add domains to the scales
   let xMin = d3.min(dataset, d => d.season) - 1;
@@ -193,7 +193,7 @@ d3.csv(csvfile, function(d) {
       .style("cursor", "pointer")
       .on("click", function() {
         let value = d3.select(".line").classed("hidden");
-        console.log(value);
+        // console.log(value);
         if (value == true)
           d3.select(".line").classed("hidden", false);
         else
@@ -210,7 +210,7 @@ d3.csv(csvfile, function(d) {
       .style("cursor", "pointer")
       .on("click", function() {
         let value = d3.select(".line").classed("hidden");
-        console.log(value);
+        // console.log(value);
         if (value == true)
           d3.select(".line").classed("hidden", false);
         else
@@ -317,7 +317,7 @@ d3.csv(csvfile, function(d) {
   // Search
   let names = dataset.map(d => d.name);
   unique_names = names.filter((d, i) => i == names.indexOf(d));
-  console.log(unique_names);
+  // console.log(unique_names);
   d3.select("datalist#names")
     .selectAll("option")
       .data(unique_names)
@@ -328,10 +328,10 @@ d3.csv(csvfile, function(d) {
   d3.select("button.search")
     .on("click", function() {
       let name = d3.select("input.search").property("value");
-      console.log(name);
+      // console.log(name);
       let filter = dataset.filter(d => d.name == name);
       filter.sort((d, e) => d.season - e.season);
-      console.log(filter);
+      // console.log(filter);
       if (name.length > 0) {
         g.append("path")
           .datum(filter)
@@ -340,7 +340,7 @@ d3.csv(csvfile, function(d) {
           .attr("fill", "none")
           .attr("stroke", () => {
             let color = randomColor();
-            console.log(color);
+            // console.log(color);
             return color;
           })
           .attr("stroke-width", 5)
