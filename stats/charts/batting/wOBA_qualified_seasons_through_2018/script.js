@@ -88,27 +88,29 @@ d3.csv(csvfile, function(d) {
       .attr("cx", d => x(d.season))
       .attr("cy", d => y(d.wOBA))
       .attr("r", 3)
-      .attr("fill", "gray")
+      .attr("fill", "#ABBABA")
       .attr("fill-opacity", 0.75)
       .attr("stroke", "black")
       .on("mouseover", function(d) {
-        d3.select(this).attr("r", 6).attr("fill", "#17EBF0").attr("fill-opacity", 0.85);
+        let circle = d3.select(this)
+        
+        circle.attr("r", 6).attr("fill", "#17EBF0").attr("fill-opacity", 0.85);
         // Tooltips
-        var xPosition = x(d.season) + 94;
-        var yPosition = y(d.wOBA) + 64;
+        var xPosition = x(d.season) + 110;
+        var yPosition = y(d.wOBA) + 100;
 
         let tooltip = d3.select("#tooltip")
           .style("left", xPosition + "px")
           .style("top", yPosition + "px")
 
         tooltip.select("#season").text(d.season);
-        tooltip.select("#wOBA").text(d.wOBA);
+        tooltip.select("#wOBA").text(d3.format(".3r")(d.wOBA));
         tooltip.select("span#name").text(d.name + ", ");
 
         d3.select("#tooltip").classed("hidden", false);
       })
       .on("mouseout", function () {
-        d3.select(this).attr("r", 3);
+        d3.select(this).attr("fill", "#ABBABA").attr("r", 3);
         d3.select("#tooltip").classed("hidden", true);
       })
   
@@ -124,38 +126,39 @@ d3.csv(csvfile, function(d) {
     .attr("d", line)
     .attr("fill", "none")
     .attr("stroke", "#00EAEA")
-    .attr("stroke-width", 5);
+    .attr("stroke-width", 5)
+    .attr("stroke-linecap", "round");
   
-  // // Median Points
-  // g.selectAll("circle.median")
-  //   .data(medians)
-  //   .enter()
-  //   .append("circle")
-  //     .attr("class", "median")
-  //     .attr("cx", d => x(d.season))
-  //     .attr("cy", d => y(d.wOBA))
-  //     .attr("r", 4)
-  //     .attr("fill", "black")
-  //     .attr("fill-opacity", 0.2)
-  //     .on("mouseover", function(d) {
-  //       d3.select(this).attr("r", 6).attr("fill", "#17EBF0").attr("fill-opacity", 1);
-  //       // Tooltips
-  //       var xPosition = x(d.season) + 94;
-  //       var yPosition = y(d.wOBA) + 64;
+  // Median Points
+  g.selectAll("circle.median")
+    .data(medians)
+    .enter()
+    .append("circle")
+      .attr("class", "median")
+      .attr("cx", d => x(d.season))
+      .attr("cy", d => y(d.wOBA))
+      .attr("r", 4)
+      .attr("fill", "black")
+      .attr("fill-opacity", 0.0)
+      .on("mouseover", function(d) {
+        d3.select(this).attr("r", 6).attr("fill", "red").attr("fill-opacity", 1);
+        // Tooltips
+        var xPosition = x(d.season) + 110;
+        var yPosition = y(d.wOBA) + 100;
 
-  //       let tooltip = d3.select("#tooltip-median")
-  //         .style("left", xPosition + "px")
-  //         .style("top", yPosition + "px")
+        let tooltip = d3.select("#tooltip-median")
+          .style("left", xPosition + "px")
+          .style("top", yPosition + "px")
 
-  //       tooltip.select("#tooltip-median span#season").text(d.season);
-  //       tooltip.select("#tooltip-median span#wOBA").text(d3.format(".3r")(d.wOBA));
+        tooltip.select("#tooltip-median span#season").text(d.season);
+        tooltip.select("#tooltip-median span#wOBA").text(d3.format(".3r")(d.wOBA));
 
-  //       d3.select("#tooltip-median").classed("hidden", false);
-  //     })
-  //     .on("mouseout", function () {
-  //       d3.select(this).attr("r", 3);
-  //       d3.select("#tooltip-median").classed("hidden", true);
-  //     })
+        d3.select("#tooltip-median").classed("hidden", false);
+      })
+      .on("mouseout", function () {
+        d3.select(this).attr("r", 3).attr("fill-opacity", 0);
+        d3.select("#tooltip-median").classed("hidden", true);
+      })
 
   // Draw legend
   let legend_options = {
@@ -187,14 +190,33 @@ d3.csv(csvfile, function(d) {
       .attr("width", 35)
       .attr("height", 7)
       .attr("fill", "#00EAEA")
+      .style("cursor", "pointer")
+      .on("click", function() {
+        let value = d3.select(".line").classed("hidden");
+        console.log(value);
+        if (value == true)
+          d3.select(".line").classed("hidden", false);
+        else
+          d3.select(".line").classed("hidden", true);
+      })
       
   legend.append("text")
       .attr("x", 46)
-      .attr("y", legend_options.height / 2 + 3)
+      .attr("y", legend_options.height / 2 + 4)
       .text(legend_options.text)
       .attr("font-size", 17)
       .attr("font-family", "Calibri")
-      .attr("font-weight", "bold");
+      .attr("font-weight", "bold")
+      .style("cursor", "pointer")
+      .on("click", function() {
+        let value = d3.select(".line").classed("hidden");
+        console.log(value);
+        if (value == true)
+          d3.select(".line").classed("hidden", false);
+        else
+          d3.select(".line").classed("hidden", true);
+      })
+
   // Titles
   let title = {
     "text": "wOBA over the years",
@@ -282,5 +304,27 @@ d3.csv(csvfile, function(d) {
     .style("font-weight", "bold")
     .style("text-anchor", "end")
     .style("font-family", "Cambria");
+
+  // Search
+  let names = dataset.map(d => d.name);
+  unique_names = names.filter((d, i) => i == names.indexOf(d));
+  console.log(unique_names);
+  d3.select("datalist#names")
+    .selectAll("option")
+      .data(unique_names)
+      .enter()
+      .append("option")
+        .attr("value", d => d);
+      
+  d3.select("button.search")
+    .on("click", function() {
+      let name = d3.select("input.search").property("value");
+      console.log(name);
+      if (name.length > 0) {
+
+        // d3.selectAll("circle." + name)
+        //   .attr("r", 12);
+      }
+    });
 
 })

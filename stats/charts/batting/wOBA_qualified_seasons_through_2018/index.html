@@ -7,10 +7,8 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>wOBA 1871-2018</title>
   <link rel="stylesheet" href="style.css">
-  <script src="../../../../site/js/d3.min.js"></script>
-  <script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
-	 <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
-  <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
+
+  <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 
 <body>
@@ -44,11 +42,20 @@
       </p>
     </div>
 
-  <div id="chart">
-    <svg width="1400" , height="800"></svg>
-    <script src="script.js"></script>
-    <!-- <script src="svg-to-png.js"></script> -->
-  </div>
+    <span style="font-size:16px; font-weight:bold;">
+      Player Search:</span>
+    <input list="names" class="search">
+    <datalist id="names">
+      
+    </datalist>
+    <button class="search">Search</button>
+    </br>
+    </br>
+    <div id="chart">
+      <svg width="1400" , height="800"></svg>
+      <script src="script.js"></script>
+      <!-- <script src="svg-to-png.js"></script> -->
+    </div>
 
 </body>
 
