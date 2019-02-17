@@ -1,0 +1,89 @@
+.axis {
+  font-family: "Calibri";
+  font-size: 14px;
+  font-weight: bold;
+  fill: "green"
+}
+
+body {
+  font: 10px sans-serif;
+  shape-rendering: crispEdges;
+}
+
+#tooltip {
+  position: absolute;
+  width: 170px;
+  height: auto;
+  padding: 10px;
+  background-color: #FBEFEF;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+#tooltip.hidden {
+  display: none;
+}
+
+#tooltip p {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+#tooltip p strong {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 18px;
+  line-height: 20px;
+}
+
+#tooltip-median {
+  position: absolute;
+  width: 182px;
+  height: auto;
+  padding: 10px;
+  background-color: #FBEFEF;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+#tooltip-median.hidden {
+  display: none;
+}
+
+#tooltip-median p {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+#tooltip-median p strong {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 18px;
+  line-height: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+svg {
+  background-color: #DAE4E6;
+}
+
+.title {
+  font-family: "Calibri";
+}

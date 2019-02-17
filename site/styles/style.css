@@ -1,0 +1,36 @@
+html, body {
+  background-color: #001214;
+  margin: 10px;
+}
+
+#container-all {
+  background-color: aqua
+}
+
+#header {
+  border: 5px solid #030804;
+  display: flex;
+}
+
+#header > div {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  font-size: 2em;
+  color: #05051a;
+  font-family: "Calibri";
+  font-weight: bold;
+}
+
+#header > div:nth-of-type(odd) {
+  background-color: #0dc5b6
+}
+
+#header > div:nth-of-type(even) {
+  background-color: #073d39
+}
+
+.container {
+  background-color: aquamarine
+}
+ */
