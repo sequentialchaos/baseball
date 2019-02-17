@@ -305,6 +305,15 @@ d3.csv(csvfile, function(d) {
     .style("text-anchor", "end")
     .style("font-family", "Cambria");
 
+
+  // Random color maker
+  let hue = 0;
+  let randomColor = function() {
+    let randomInt = (min, max) => Math.floor(Math.random() * (max - min) + min);
+    let hsl = [hue, randomInt(85, 101) + '%', "62%"];
+    hue += 28;
+    return "hsl(" + hsl.join(",") + ")";
+  }
   // Search
   let names = dataset.map(d => d.name);
   unique_names = names.filter((d, i) => i == names.indexOf(d));
@@ -320,11 +329,35 @@ d3.csv(csvfile, function(d) {
     .on("click", function() {
       let name = d3.select("input.search").property("value");
       console.log(name);
+      let filter = dataset.filter(d => d.name == name);
+      filter.sort((d, e) => d.season - e.season);
+      console.log(filter);
       if (name.length > 0) {
-
+        g.append("path")
+          .datum(filter)
+          .attr("class", "player-line " + name)
+          .attr("d", line)
+          .attr("fill", "none")
+          .attr("stroke", () => {
+            let color = randomColor();
+            console.log(color);
+            return color;
+          })
+          .attr("stroke-width", 5)
+          .attr("stroke-linecap", "round");
+        // let player_line = d3.line()
+        //   .x(d.season)
+        //   .y(d.wOBA)
         // d3.selectAll("circle." + name)
         //   .attr("r", 12);
       }
     });
+  
+  // Clear lines button
+  d3.select("button.clear")
+      .on("click", function() {
+        d3.selectAll(".player-line").classed("hidden", "true");
+        hue = 0;
+      })
 
 })
