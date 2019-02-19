@@ -252,7 +252,7 @@ d3.csv(csvfile, function(d) {
   let source = {
     "label": "source: ",
     "text": "www.fangraphs.com",
-    "size": 14,
+    "size": 17,
     "link": "https://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=8&season=2018&month=0&season1=1871&ind=1&team=&rost=&age=&filter=&players=",
     "font_family": "Calibri",
     "color": "50AE26"
@@ -262,8 +262,8 @@ d3.csv(csvfile, function(d) {
     .attr("href", source.link)
     .attr("target", "_blank")
     .append("text")
-    .attr("x", -margin.left + 51)
-    .attr("y", height + margin.bottom - 5)
+    .attr("x", -margin.left + 60)
+    .attr("y", height + margin.bottom - 6)
     .attr("class", "source")
     .text(source.text)
     .style("font-size", source.size)
@@ -271,7 +271,7 @@ d3.csv(csvfile, function(d) {
     .style("font-family", source.font_family)
     .style("font-style", "italic")
     .style("fill", source.color)
-    .style("text-shadow", "#000 0px 0px 1px");
+    .style("text-shadow", "1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;");
 
   g.append("text")
     .attr("x", -margin.left + 5)
