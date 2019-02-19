@@ -227,7 +227,7 @@ d3.csv(csvfile, function(d) {
     "size": 36,
     "y": -24,
     sub: {
-      "text": "All qualified seasons from 1969 to 2018",
+      "text": "All seasons (min. 120 IP) from 1969 to 2018",
       "size": 16
     }
   }
