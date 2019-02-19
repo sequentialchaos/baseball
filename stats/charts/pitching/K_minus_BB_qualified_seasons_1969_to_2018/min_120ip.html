@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>K-BB% 1969-2018</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+
+<body>
+  <div id="tooltip" class="hidden">
+    <p>
+      <strong>
+        <span id="name">Player Name</span>
+        <span id="season"></span>
+      </strong>
+    </p>
+    <p>K-BB%:
+      <span id="K_BB"></span>
+    </p>
+    <p>ERA:
+      <span id="era"> ###</span>
+    </p>
+  </div>
+
+  <div id="tooltip-median" class="hidden">
+      <p>
+        <strong>
+          Season: 
+        </strong>
+        <span id="season"></span>
+      </p>
+      <p>
+          <strong>
+              Median K-BB%: 
+            </strong>
+        <span id="K_BB"> #.###</span>
+      </p>
+    </div>
+
+    <span style="font-size:16px; font-weight:bold;">
+      Player Search:</span>
+    <input list="names" class="search">
+    <datalist id="names" required>
+
+    </datalist>
+    <button class="search">Show player line</button>
+    <button class="clear">Clear player lines</button>
+    </br>
+    </br>
+    <div id="chart">
+      <svg width="1280", height="720"></svg>
+      <script src="script2.js"></script>
+    </div>
+
+</body>
