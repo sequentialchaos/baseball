@@ -1,0 +1,13 @@
+.chart {
+  position: absolute;
+}
+
+/* .axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+} */
+svg {
+  background-color: #DAE4E6;
+}
