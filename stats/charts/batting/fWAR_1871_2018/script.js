@@ -56,7 +56,7 @@ let resetButton = chart.append("button")
     .style("position", "absolute")
     .style("top", (margin.top + 20) + "px")
     .style("left", (margin.left + 20) + "px")
-    //.style("border", "none")
+    .style("border", "3px solid black")
     .style("text-align", "center")
     .style("font-size", "20px")
     .style("font-family", "Calibri")
@@ -172,32 +172,49 @@ d3.csv(csvfile, function(d, i) {
   function onClick() {
     let mouse = d3.mouse(this);
 
-   // let newX = d3.event.transform.rescaleX(x);
+    //let newX = d3.scaleLinear().domain()
    // let newY = d3.event.transform.rescaleY(y);
 
     let xPosition = x.invert(mouse[0]),
         yPosition = y.invert(mouse[1]);
-    console.log(xPosition);
-    console.log(yPosition);
+    //console.log(mouse[0], xPosition);
+    //console.log(mouse[1], yPosition);
     let closest = quadTree.find(xPosition, yPosition);
     
 
     if (closest != undefined) {
       let dx = x(closest.year),
           dy = y(closest.fwar);
-
+      console.log(dx, dy);
       let distance = euclideanDistance(mouse[0], mouse[1], dx, dy);
+      console.log(distance);
       if (distance < r) {
         if (selectedPoint != undefined) {
-          selectedPoint.selected = false;
+          if (selectedPoint == closest) {
+            if (selectedPoint.selected) {
+              selectedPoint.selected = false;
+            } else {
+              selectedPoint.selected = true;
+            }
+            console.log("selected == closest");
+          } else {
+            selectedPoint.selected = false;
+            drawPoint(selectedPoint, r);
+            selectedPoint = closest;
+            selectedPoint.selected = true;
+          }
+        } else {
+          selectedPoint = closest;
+          console.log(selectedPoint);
+          selectedPoint.selected = true;
+          
         }
-        closest.selected = true;
-        selectedPoint = closest;
-        console.log(dataset.filter(d => d.year == selectedPoint.year && d.fwar == selectedPoint.fwar));
         drawPoint(dataset[selectedPoint.index], r);
+        selectedPoints = dataset.filter(d => d.year == selectedPoint.year && d.fwar == selectedPoint.fwar);
+        selectedPoints.forEach(d => console.log(d));
       }
     }
-    console.log(closest);
+    //console.log(closest);
   }
   
   function drawPoints(set, r) {
@@ -221,6 +238,8 @@ d3.csv(csvfile, function(d, i) {
     context.save();
     if (d.selected) {
       context.fillStyle = "red"
+    } else {
+      context.fillStyle = "#313131";
     }
     // Draw Circle
     context.beginPath();
@@ -235,6 +254,7 @@ d3.csv(csvfile, function(d, i) {
     context.save();
     context.clearRect(0, 0, width, height);
     context.translate(d3.event.transform.x, d3.event.transform.y);
+   // console.log(d3.event.transform.x, d3.event.transform.y);
     let tk = d3.event.transform.k;
     context.scale(tk, tk);
     // console.log(tk);
@@ -262,7 +282,7 @@ d3.csv(csvfile, function(d, i) {
 
   function resetted() {
     canvas.transition()
-        .duration(500)
+        .duration(250)
         .call(zoom.transform, d3.zoomIdentity);
   }
 })
