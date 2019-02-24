@@ -1,5 +1,5 @@
 /////  DIMENSIONS and MARGINS  /////
-let fullWidth = 1280,
+let fullWidth = 1200,
     fullHeight = 720;
 
 let margin = {top: 80, right: 20, bottom: 80, left: 80},
@@ -8,9 +8,11 @@ let margin = {top: 80, right: 20, bottom: 80, left: 80},
 
 /////  MISC GLOBAL VARIABLES  /////    
 let selectedPoint;
+let isZoomed = false;
 
 /////  CHART DIV  /////
 let chart = d3.select("div#chart");
+
 /////  SVG  ///// 
 let svg = d3.select("#chart-grid")
     .attr("width", fullWidth)
@@ -19,7 +21,9 @@ let svg = d3.select("#chart-grid")
 let g = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-svg.style("background-color", "#99CF81");
+let svgBorderWidth = 5;
+svg.style("background-color", "#99CF81")
+    //.style("border", svgBorderWidth + "px solid black");
 /////  CANVAS  /////
 let canvas = d3.select("#chart-inner")
     .attr("width", width - 1)
@@ -76,7 +80,10 @@ let resetButton = chart.append("button")
 
 /////  SCALES - ranges  /////
 let x = d3.scaleLinear().range([0, width])
-    y = d3.scaleLinear().range([height, 0])
+    y = d3.scaleLinear().range([height, 0]);
+let zoomedX = d3.scaleLinear().range([0, width]),
+    zoomedY = d3.scaleLinear().range([height, 0]);   
+
 
 /////  CSV  /////
 let csvfile = "fWAR_batters_1871_2018.csv";
@@ -101,11 +108,13 @@ d3.csv(csvfile, function(d, i) {
   console.log(quadTree.data());
 
   /////  SCALES - domains  /////
-  let xDomain = d3.extent(dataset, d => d.year);
-  let yDomain = d3.extent(dataset, d => d.fwar);
+  let xDomain = d3.extent(dataset, d => d.year),
+      yDomain = d3.extent(dataset, d => d.fwar);
   //let buffer = d => d
   x.domain([xDomain[0] - 1, xDomain[1] + 1]);
+  zoomedX.domain([xDomain[0] - 1, xDomain[1] + 1]);
   y.domain([yDomain[0] - 0.2, yDomain[1] + 0.2]);
+  zoomedY.domain([yDomain[0] - 0.2, yDomain[1] + 0.2]);
 
   /////  AXES  /////
   let xAxis = d3.axisBottom(x).ticks(15).tickFormat(d3.format("0")).tickSize(-height);
@@ -151,8 +160,9 @@ d3.csv(csvfile, function(d, i) {
       .style("font-weight", "bold");
   
   /////  ZOOM  /////
-  let r = 5, k = [1, 13], pad = 100;
-  let rScale = d3.scaleLinear().domain(k).range([r, 2]);
+  let r = 5, k = [1, 13], pad = 100, tk = 1;
+  let rScale = d3.scaleLinear().domain(k).range([r, 2]),
+      zoomedR = 5;//d3.scaleLinear().domain([r, 2]).range([r, 2]);
   let tScale = d3.scaleLinear().domain(k).range([18, 16]);
   let zoom = d3.zoom()
       .scaleExtent(k)
@@ -174,21 +184,30 @@ d3.csv(csvfile, function(d, i) {
 
     //let newX = d3.scaleLinear().domain()
    // let newY = d3.event.transform.rescaleY(y);
-
-    let xPosition = x.invert(mouse[0]),
-        yPosition = y.invert(mouse[1]);
+    let xPosition, yPosition;
+    console.log(isZoomed)
+    if (isZoomed) {
+      xPosition = zoomedX.invert(mouse[0]),
+      yPosition = zoomedY.invert(mouse[1]);
+    } else {
+      xPosition = x.invert(mouse[0]),
+      yPosition = y.invert(mouse[1]);
+    }
+    // let xPosition = x.invert(mouse[0]),
+    //     yPosition = y.invert(mouse[1]);
     //console.log(mouse[0], xPosition);
     //console.log(mouse[1], yPosition);
     let closest = quadTree.find(xPosition, yPosition);
     
 
     if (closest != undefined) {
-      let dx = x(closest.year),
-          dy = y(closest.fwar);
-      console.log(dx, dy);
+      let dx = zoomedX(closest.year),
+          dy = zoomedY(closest.fwar);
+      
+      console.log(closest.year, closest.fwar, mouse[0], mouse[1], dx, dy);
       let distance = euclideanDistance(mouse[0], mouse[1], dx, dy);
-      console.log(distance);
-      if (distance < r) {
+      console.log(distance, zoomedR);
+      if (distance < zoomedR) {
         if (selectedPoint != undefined) {
           if (selectedPoint == closest) {
             if (selectedPoint.selected) {
@@ -196,7 +215,6 @@ d3.csv(csvfile, function(d, i) {
             } else {
               selectedPoint.selected = true;
             }
-            console.log("selected == closest");
           } else {
             selectedPoint.selected = false;
             drawPoint(selectedPoint, r);
@@ -205,9 +223,7 @@ d3.csv(csvfile, function(d, i) {
           }
         } else {
           selectedPoint = closest;
-          console.log(selectedPoint);
           selectedPoint.selected = true;
-          
         }
         drawPoint(dataset[selectedPoint.index], r);
         selectedPoints = dataset.filter(d => d.year == selectedPoint.year && d.fwar == selectedPoint.fwar);
@@ -215,6 +231,7 @@ d3.csv(csvfile, function(d, i) {
       }
     }
     //console.log(closest);
+    //drawPoints(dataset, r);
   }
   
   function drawPoints(set, r) {
@@ -251,22 +268,24 @@ d3.csv(csvfile, function(d, i) {
   }
 
   function zoomed() {
+    isZoomed = true;
     context.save();
     context.clearRect(0, 0, width, height);
     context.translate(d3.event.transform.x, d3.event.transform.y);
    // console.log(d3.event.transform.x, d3.event.transform.y);
-    let tk = d3.event.transform.k;
+    tk = d3.event.transform.k;
     context.scale(tk, tk);
     // console.log(tk);
     r = Math.floor(rScale(tk));
-
+    zoomedR = rScale(tk) * tk;
     // console.log(tScale(tk));
     drawPoints(dataset, r);
     context.restore();
-
-    xAxisGroup.call(xAxis.scale(d3.event.transform.rescaleX(x)));
-    yAxisGroup.call(yAxis.scale(d3.event.transform.rescaleY(y)));
-
+    zoomedX = d3.event.transform.rescaleX(x);
+    zoomedY = d3.event.transform.rescaleY(y);
+    xAxisGroup.call(xAxis.scale(zoomedX));
+    yAxisGroup.call(yAxis.scale(zoomedY));
+    
     d3.selectAll(".tick line")
       .style("opacity", "0.7");
 
@@ -284,6 +303,7 @@ d3.csv(csvfile, function(d, i) {
     canvas.transition()
         .duration(250)
         .call(zoom.transform, d3.zoomIdentity);
+    isZoomed = false;
   }
 })
 
