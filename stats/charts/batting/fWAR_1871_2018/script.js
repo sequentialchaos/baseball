@@ -6,6 +6,10 @@ let margin = {top: 80, right: 20, bottom: 80, left: 80},
     width = fullWidth - margin.right - margin.left,
     height = fullHeight - margin.top - margin.bottom;
 
+/////  MISC GLOBAL VARIABLES  /////    
+let selectedPoint;
+
+/////  CHART DIV  /////
 let chart = d3.select("div#chart");
 /////  SVG  ///// 
 let svg = d3.select("#chart-grid")
@@ -23,7 +27,7 @@ let canvas = d3.select("#chart-inner")
     .style("transform", "translate(" + (margin.left + 1) + "px," + (margin.top + 1) + "px)");
 
 /// Title ///
-let title = "MLB seasons with ≥ 5 fWAR";
+let title = "MLB seasons with ≥ 6 fWAR";
 g.append("text")
     .attr("class", "title")
     .attr("x", width / 2)
@@ -35,7 +39,7 @@ g.append("text")
     .style("font-size", "36px");
 
 // Subtitle //
-let subtitle = "All hitters from 1871 to 2018";
+let subtitle = "All position players from 1871 to 2018";
 g.append("text")
     .attr("class", "subtitle")
     .attr("x", width / 2)
@@ -76,16 +80,25 @@ let x = d3.scaleLinear().range([0, width])
 
 /////  CSV  /////
 let csvfile = "fWAR_batters_1871_2018.csv";
-d3.csv(csvfile, function(d) {
+d3.csv(csvfile, function(d, i) {
   return {
     name: d.Name,
     year: +d.Season,
     fwar: +d.WAR,
-    PA: +d.PA
+    PA: +d.PA,
+    selected: false,
+    index: i
   };
 }).then(function(data) {
-  let dataset = data.filter(d => d.fwar >= 5);
+  let dataset = data.filter(d => d.fwar >= 6);
+  let quadTree = d3.quadtree()
+      .x(d => d.year)
+      .y(d => d.fwar)
+      .addAll(dataset);
+      
   console.log(dataset);
+  console.log(quadTree);
+  console.log(quadTree.data());
 
   /////  SCALES - domains  /////
   let xDomain = d3.extent(dataset, d => d.year);
@@ -130,7 +143,7 @@ d3.csv(csvfile, function(d) {
       .text("fWAR");
   
   d3.selectAll(".tick line")
-      .style("opacity", "0.8")
+      .style("opacity", "0.7")
 
   d3.selectAll(".tick text")
       .style("font-size", 18)
@@ -138,16 +151,17 @@ d3.csv(csvfile, function(d) {
       .style("font-weight", "bold");
   
   /////  ZOOM  /////
-  let r = 5, k = [1, 13], pad = 75;
+  let r = 5, k = [1, 13], pad = 100;
   let rScale = d3.scaleLinear().domain(k).range([r, 2]);
-  let tScale = d3.scaleLinear().domain(k).range([18, 15]);
+  let tScale = d3.scaleLinear().domain(k).range([18, 16]);
   let zoom = d3.zoom()
       .scaleExtent(k)
-      .translateExtent([[-pad, -pad], [width + pad, height + pad]])
+      .translateExtent([[-pad, -pad/2], [width + pad, height + pad / 2]])
       .on("zoom", zoomed);
   
+  
   canvas.call(zoom);
-
+  canvas.on("click", onClick);
   let context = canvas.node().getContext("2d");
 
   drawPoints(dataset, r);
@@ -155,13 +169,43 @@ d3.csv(csvfile, function(d) {
   d3.select("button.reset")
       .on("click", resetted);
 
+  function onClick() {
+    let mouse = d3.mouse(this);
+
+   // let newX = d3.event.transform.rescaleX(x);
+   // let newY = d3.event.transform.rescaleY(y);
+
+    let xPosition = x.invert(mouse[0]),
+        yPosition = y.invert(mouse[1]);
+    console.log(xPosition);
+    console.log(yPosition);
+    let closest = quadTree.find(xPosition, yPosition);
+    
+
+    if (closest != undefined) {
+      let dx = x(closest.year),
+          dy = y(closest.fwar);
+
+      let distance = euclideanDistance(mouse[0], mouse[1], dx, dy);
+      if (distance < r) {
+        if (selectedPoint != undefined) {
+          selectedPoint.selected = false;
+        }
+        closest.selected = true;
+        selectedPoint = closest;
+        console.log(dataset.filter(d => d.year == selectedPoint.year && d.fwar == selectedPoint.fwar));
+        drawPoint(dataset[selectedPoint.index], r);
+      }
+    }
+    console.log(closest);
+  }
+  
   function drawPoints(set, r) {
     context.fillStyle = "#DBDCDB";
-    context.globalAlpha = 0.6;
+    context.globalAlpha = 0.5;
     context.fillRect(-pad, -pad, fullWidth + pad, fullHeight + pad);
     context.globalAlpha = 1;
-    //context.clearRect(0, 0, fullWidth, fullHeight);
-    context.fillStyle = "#464646";
+    context.fillStyle = "#313131";
     context.strokeWidth = 1;
 
     set.forEach(d => {
@@ -174,38 +218,46 @@ d3.csv(csvfile, function(d) {
     let cx = x(d.year),
         cy = y(d.fwar);
     
+    context.save();
+    if (d.selected) {
+      context.fillStyle = "red"
+    }
     // Draw Circle
     context.beginPath();
     context.arc(cx, cy, r, 0, 2 * Math.PI); // Circle
     context.closePath();
     context.fill();
     context.stroke();
+    context.restore();
   }
 
   function zoomed() {
-    // clearTimeout(zoomEndTimeout);
-    //draw(randomIndex);
     context.save();
     context.clearRect(0, 0, width, height);
     context.translate(d3.event.transform.x, d3.event.transform.y);
-    let tk = d3.event.transform.k
+    let tk = d3.event.transform.k;
     context.scale(tk, tk);
-    console.log(tk);
-    let radius = Math.floor(rScale(tk));
-    console.log(tScale(tk));
-    drawPoints(dataset, radius);
+    // console.log(tk);
+    r = Math.floor(rScale(tk));
+
+    // console.log(tScale(tk));
+    drawPoints(dataset, r);
     context.restore();
 
     xAxisGroup.call(xAxis.scale(d3.event.transform.rescaleX(x)));
     yAxisGroup.call(yAxis.scale(d3.event.transform.rescaleY(y)));
 
     d3.selectAll(".tick line")
-      .style("opacity", "0.15");
+      .style("opacity", "0.7");
 
     d3.selectAll(".tick text")
       .style("font-size", tScale(tk))
       .style("font-family", "Calibri")
       .style("font-weight", "bold");
+  }
+
+  function euclideanDistance(x1, y1, x2, y2) {
+    return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
   }
 
   function resetted() {
