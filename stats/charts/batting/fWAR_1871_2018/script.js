@@ -9,6 +9,7 @@ let margin = {top: 80, right: 20, bottom: 80, left: 80},
 /////  MISC GLOBAL VARIABLES  /////    
 let selectedPoint;
 let isZoomed = false;
+let lastEvent;
 
 /////  CHART DIV  /////
 let chart = d3.select("div#chart");
@@ -70,6 +71,41 @@ let resetButton = chart.append("button")
     .style("cursor", "pointer")
     .text("Reset View");
 
+/////  TOOLTIP  /////
+d3.select(".hidden")
+    .attr("class", "hidden")
+    .style("display", "none");
+
+let tooltip = {
+  w: 310,
+  h: 200,
+  left: margin.left + width - 310,
+  top: margin.top + 1,
+  pad: 10,
+  bgcolor: "#CBBABA", 
+  opacity: 0.95,
+  stroke: "black",
+  strokeWidth: 20,
+  close: {
+    w: 40,
+    h: 40,
+    left: margin.left + width - 40,
+  }
+}
+
+d3.select("#tooltip")
+    .style("position", "absolute")
+    .style("left", tooltip.left + "px")
+    .style("top", tooltip.top + "px")
+    .style("width", tooltip.w + "px")
+    .style("height", "auto")//tooltip.h + "px")
+    .style("background-color", tooltip.bgcolor)
+    .style("opacity", tooltip.opacity)
+
+d3.select("#tooltip").append("div").attr("class", "results");
+d3.select("#tooltip").classed("hidden", true);
+
+
 // /////  PLAYER SEARCH  /////
 // let searchBox = chart.append("input")
 //     .attr("list", "names")
@@ -86,15 +122,17 @@ let zoomedX = d3.scaleLinear().range([0, width]),
 
 
 /////  CSV  /////
-let csvfile = "fWAR_batters_1871_2018.csv";
+let csvfile = "fWAR_batters_1871_2018.csv?1";
 d3.csv(csvfile, function(d, i) {
   return {
     name: d.Name,
     year: +d.Season,
     fwar: +d.WAR,
+    team: d.Team,
     PA: +d.PA,
+    id: d.playerid,
     selected: false,
-    index: i
+    index: i,
   };
 }).then(function(data) {
   let dataset = data.filter(d => d.fwar >= 6);
@@ -132,7 +170,7 @@ d3.csv(csvfile, function(d, i) {
       .style("fill", "black")
       .style("font-weight", "bold")
       .style("letter-spacing", "1px")
-      .text("Season");
+      .text("Year");
 
   let yAxis = d3.axisLeft(y).tickFormat(d3.format("0.1f")).tickSize(-width);
   let yAxisGroup = g.append("g")
@@ -199,7 +237,6 @@ d3.csv(csvfile, function(d, i) {
     //console.log(mouse[1], yPosition);
     let closest = quadTree.find(xPosition, yPosition);
     
-
     if (closest != undefined) {
       let dx = zoomedX(closest.year),
           dy = zoomedY(closest.fwar);
@@ -207,29 +244,77 @@ d3.csv(csvfile, function(d, i) {
       console.log(closest.year, closest.fwar, mouse[0], mouse[1], dx, dy);
       let distance = euclideanDistance(mouse[0], mouse[1], dx, dy);
       console.log(distance, zoomedR);
+      
       if (distance < zoomedR) {
         if (selectedPoint != undefined) {
           if (selectedPoint == closest) {
             if (selectedPoint.selected) {
               selectedPoint.selected = false;
+              d3.select("#tooltip").classed("hidden", true)
             } else {
+              
               selectedPoint.selected = true;
+              d3.select("#tooltip").classed("hidden", false)
             }
           } else {
             selectedPoint.selected = false;
-            drawPoint(selectedPoint, r);
+            //drawPoint(selectedPoint, r);
             selectedPoint = closest;
             selectedPoint.selected = true;
+            d3.select("#tooltip").classed("hidden", false)
           }
         } else {
           selectedPoint = closest;
           selectedPoint.selected = true;
+          d3.select("#tooltip").classed("hidden", false)
         }
-        drawPoint(dataset[selectedPoint.index], r);
+        
+        context.save()
+        context.scale(tk, tk);
+        // r = Math.floor(rScale(tk));
+        // drawPoint(dataset[selectedPoint.index], r);
+        context.restore();
+        d3.selectAll(".results").remove();
         selectedPoints = dataset.filter(d => d.year == selectedPoint.year && d.fwar == selectedPoint.fwar);
-        selectedPoints.forEach(d => console.log(d));
+        selectedPoints.forEach((d, i) => {
+          if (i == 0) {
+            d3.select("span#year")
+                .text(d.year);
+            d3.select("span#fwar")
+                .text(d3.format("0.1f")(d.fwar));
+            // d3.select("#tooltip").append("div")
+            //   .text("Player\tOverall Rank");
+          }
+          let url = "https://www.fangraphs.com/statss.aspx?playerid=" + d.id;
+          d3.select("#tooltip")
+            .append("div")
+              .attr("class", "results")
+              .append("a")
+              .attr("href",  url)
+              .attr("target", "_blank")
+              .text(d.name + ", " + d.team);
+          console.log(d);
+        })
+        d3.select("#tooltip")
+            .append("div")
+            .attr("class", "results")
+      } else {
+        if (selectedPoint != undefined) {
+          selectedPoint.selected = false;
+          d3.select("#tooltip").classed("hidden", true);
+        }
       }
     }
+    if (lastEvent != null) {
+      repeatLastEvent();
+    }
+    else {
+      if (selectedPoint != null) {
+        drawPoints(dataset, r);
+        // selectedPoint.selected = false;
+      }
+    }
+      
     //console.log(closest);
     //drawPoints(dataset, r);
   }
@@ -267,10 +352,26 @@ d3.csv(csvfile, function(d, i) {
     context.restore();
   }
 
+  function repeatLastEvent() {
+    context.save();
+    context.clearRect(0, 0, width, height);
+    context.translate(lastEvent.transform.x, lastEvent.transform.y);
+   // console.log(d3.event.transform.x, d3.event.transform.y);
+    tk = lastEvent.transform.k;
+    context.scale(tk, tk);
+    // console.log(tk);
+    r = Math.floor(rScale(tk));
+    zoomedR = rScale(tk) * tk;
+    // console.log(tScale(tk));
+    drawPoints(dataset, r);
+    context.restore();
+  }
+
   function zoomed() {
     isZoomed = true;
     context.save();
     context.clearRect(0, 0, width, height);
+    lastEvent = d3.event;
     context.translate(d3.event.transform.x, d3.event.transform.y);
    // console.log(d3.event.transform.x, d3.event.transform.y);
     tk = d3.event.transform.k;
@@ -305,6 +406,28 @@ d3.csv(csvfile, function(d, i) {
         .call(zoom.transform, d3.zoomIdentity);
     isZoomed = false;
   }
+
+  let signature = {
+    "text": "@SequentialChaos",
+    "link": "https://twitter.com/sequentialchaos",
+    "size": 18,
+    "color": "#063C47"
+  }
+
+  svg.append("a")
+    .attr("href", signature.link)
+    .attr("target", "_blank")
+    .append("text")
+    .attr("x", width + margin.left + margin.right - 5)
+    .attr("y", height + margin.top + margin.bottom - 5)
+    .attr("class", "signature")
+    .text(signature.text)
+    .style("fill", signature.color)
+    .style("font-size", signature.size)
+    .style("font-weight", "bold")
+    .style("text-anchor", "end")
+    .style("font-family", "Cambria");
+
 })
 
 /* References:
