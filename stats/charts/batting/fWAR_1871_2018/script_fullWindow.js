@@ -2,7 +2,7 @@
 let fullWidth = window.innerWidth,
     fullHeight = window.innerHeight;
 
-let margin = {top: 80, right: 20, bottom: 80, left: 80},
+let margin = {top: 80, right: 60, bottom: 80, left: 80},
     width = fullWidth - margin.right - margin.left,
     height = fullHeight - margin.top - margin.bottom;
 
