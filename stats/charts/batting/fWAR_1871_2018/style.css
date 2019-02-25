@@ -30,7 +30,15 @@
   font-weight: bold;
   font-size: 21px;
   padding: 3px;
-  color: #105010;
+  color: #0E7B67;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a text:hover {
+  text-decoration: underline;
 }
 
 .hidden {
