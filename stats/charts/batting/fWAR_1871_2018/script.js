@@ -1,5 +1,5 @@
 /////  DIMENSIONS and MARGINS  /////
-let fullWidth = 1320,
+let fullWidth = 1280,
     fullHeight = 800;
 
 let margin = {top: 80, right: 20, bottom: 80, left: 80},
