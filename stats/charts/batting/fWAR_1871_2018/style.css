@@ -45,5 +45,11 @@ a text:hover {
   display: none;
 }
 
+#tooltip > div.note {
+  font-size: 13px;
+  font-weight: none;
+  color: black;
+  padding: 5px
+}
 
 

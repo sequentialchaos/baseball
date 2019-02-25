@@ -133,7 +133,7 @@ d3.csv(csvfile, function(d, i) {
   };
 }).then(function(data) {
   let dataset = data.filter(d => d.fwar >= 6);
-  console.log(dataset);
+  // console.log(dataset);
   // let ids = dataset.map(d => d.id);
   // let unique_ids = ids.filter((d, i) => ids.indexOf(d) == i);
 
@@ -293,7 +293,9 @@ d3.csv(csvfile, function(d, i) {
         })
         d3.select("#tooltip")
             .append("div")
-            .attr("class", "results")
+            .text("(click above for more stats!)")
+            .attr("font-size", "12px")
+            .attr("class", "note results")
       } else {
         if (selectedPoint != undefined) {
           selectedPoint.selected = false;
@@ -354,7 +356,7 @@ d3.csv(csvfile, function(d, i) {
     context.stroke();
     context.restore();
   }
-  console.log(dataset.filter(d => d.PA <= 400))
+  // console.log(dataset.filter(d => d.PA <= 400))
   function highlightPlayer(name) {
     let seasons = dataset.filter(d => name == d.name);
     let other_seasons = [];
@@ -368,17 +370,14 @@ d3.csv(csvfile, function(d, i) {
       }
       seasons[i].currentPlayer = true;
     }
-    console.log(other_seasons)
     for (let other of other_seasons) {
       seasons.push(other);
     }
-    console.log(seasons)
     drawPoints(seasons, r);
     if (prev_seasons != null) {
       for (let j = 0; j < prev_seasons.length; j++) {
         prev_seasons[j].currentPlayer = false;
       }
-      console.log(prev_seasons)
       drawPoints(prev_seasons)
     }
     prev_seasons = [];
@@ -448,7 +447,6 @@ d3.csv(csvfile, function(d, i) {
 
   let names = dataset.map(d => d.name);
   unique_names = names.filter((d, i) => i == names.indexOf(d));
-  console.log(unique_names);
   d3.select("datalist#names")
     .selectAll("option")
     .data(unique_names)
@@ -459,6 +457,22 @@ d3.csv(csvfile, function(d, i) {
   searchBox.on("change", function() {
     let name = d3.select("input.search").property("value");
     highlightPlayer(name);
+  })
+
+  let clearButton = chart.append("button")
+      .attr("class", "clear")
+      .style("position", "absolute")
+      .style("left", (width - 160) + "px")
+      .style("top", (margin.top - 29) + "px")
+      .text("clear")
+      .style("font-size", "15px")
+      .style("font-family", "Consolas")
+      .style("padding", "2px")
+      .style("background-color", "#D6D6D6")
+
+  clearButton.on("click", function() {
+    searchBox.property("value", "");
+    highlightPlayer("");
   })
   // Sources
   let source = {
