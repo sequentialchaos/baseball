@@ -79,9 +79,9 @@ d3.select(".hidden")
     .style("display", "none");
 
 let tooltip = {
-  w: 310,
+  w: 350,
   h: 200,
-  left: margin.left + width - 310,
+  left: margin.left + width - 350,
   top: margin.top + 1,
   pad: 10,
   bgcolor: "#CBBABA", 
