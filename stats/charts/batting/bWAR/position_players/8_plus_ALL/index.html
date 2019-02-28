@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="/site/styles/reset.css">
+  <link rel="stylesheet" href="/site/styles/nav.css?2">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <title>Position players, ≥ 8 bWAR seasons</title>
+  <style>
+    a .previous .next {
+      text-decoration: none;
+      display: inline-block;
+      padding: 8px 16px;
+    }
+
+    a .previous .next :hover {
+      background-color: #ddd;
+      color: black;
+    }
+
+    a .previous {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background-color: #f1f1f1;
+      color: black;
+    }
+
+    a .next {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background-color: rgb(0, 0, 0);
+      color: white;
+    }
+
+    a .round {
+      border-radius: 50%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="chart">
+
+    <svg id="chart-grid" class="chart"></svg>
+    <canvas id="chart-inner" class="chart"></canvas>
+    <div id="tooltip">
+      <div class="header">
+        <a id="year"></a>,
+        <span id="bwar"></span> bWAR</div>
+    </div>
+  </div>
+  <input list="names" class="search">
+  <datalist id="names" required></datalist>
+  <script src="script.js"></script>
+  </div>
+  <img src="mike_trout.png">
+  <a href="/stats/charts/batting/fWAR_1871_2018/full_window.html" class="next">&#8250;</a>
+</body>
+
+</html>
