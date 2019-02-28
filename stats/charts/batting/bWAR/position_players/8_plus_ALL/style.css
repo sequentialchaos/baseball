@@ -52,4 +52,24 @@ a text:hover {
   padding: 5px
 }
 
+#commentary {
+  top: 500;
+  left: 500;
+  width: 500;
+  height: 500;
+  background-color: "gray";
+}
 
+.mike-trout {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  z-index: 1;
+}
+
+.babe-ruth {
+  position: absolute;
+  width: 36px;
+  height: 70px;
+  z-index: 1;
+}

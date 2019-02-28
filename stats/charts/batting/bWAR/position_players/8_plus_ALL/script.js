@@ -3,7 +3,15 @@ function makeChart() {
   let fullWidth = window.innerWidth,
       fullHeight = window.innerHeight;
 
-  let margin = { top: 100, right: 80, bottom: 100, left: 80 },
+  if (fullWidth < 900) {
+    fullWidth = 900;
+  }
+
+  if (fullHeight < 600) {
+    fullHeight = 600;
+  }
+
+  let margin = { top: 100, right: 80, bottom: 100, left: 100 },
     width = fullWidth - margin.right - margin.left,
     height = fullHeight - margin.top - margin.bottom;
 
@@ -24,9 +32,17 @@ function makeChart() {
   let g = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  let svgBorderWidth = 5;
   svg.style("background-color", "#9FBBF5")
   //.style("border", svgBorderWidth + "px solid black");
+
+  let babe_ruth = d3.select(".babe-ruth");
+  babe_ruth.style("top", "0px")
+      .style("left", (margin.left + width*0.50 - 294) + "px")
+
+  let mike_trout = d3.select(".mike-trout");
+  mike_trout.style("top", "8px")
+      .style("left", (margin.left + width*0.50 + 245) + "px")
+
   /////  CANVAS  /////
   let canvas = d3.select("#chart-inner")
     .attr("width", width - 1)
@@ -57,6 +73,9 @@ function makeChart() {
     .style("font-style", "italic")
     .style("font-size", "18px");
 
+  /////  Mike Trout  /////
+
+
   /////  RESET BUTTON  /////
   let resetButton = chart.append("button")
     .attr("class", "reset")
@@ -82,13 +101,13 @@ function makeChart() {
   //   .style("display", "none");
 
   let tooltip = {
-    w: 350,
+    w: 400,
     h: 200,
-    left: margin.left + width - 350,
+    left: margin.left + width - 400,
     top: margin.top + 1,
     pad: 10,
     bgcolor: "#AEAFBC",
-    opacity: 0.95,
+    opacity: 0.92,
     stroke: "black",
     strokeWidth: 20,
     close: {
@@ -114,18 +133,18 @@ function makeChart() {
   let highlightDiv = chart.append("div")
       .attr("class", "highlight")
       .style("position", "absolute")
-      .style("right", (margin.right + 300) + "px")
+      .style("right", (margin.right + 235) + "px")
       .style("top", (margin.top - 20) + "px")
       .style("width", "280px")
       .style("height", "14px")
       // .style("background-color", "gray")
       .style("opacity", 0.75)
       .style("display", "grid")
-      .style("grid-template-columns", "auto 1fr auto auto 1fr")
+      .style("grid-template-columns", "auto 1fr 10px auto 1fr")
       .style("grid-template-rows", "repeat(2, 18px)")
       .style("row-gap", "0")
-      .style("column-gap", "5px")
-      .style("font-size", "14px")
+      .style("column-gap", "1px")
+      .style("font-size", "15px")
       .style("font-family", "Georgia")
       .style("font-weight", "bold")
 
@@ -141,34 +160,48 @@ function makeChart() {
 
   
   highlightDiv.append("div")
-    .append("input")
-    .attr("type", "checkbox")
-    .attr("class", "mvp")
-    .attr("checked", true)
+    .text("✔")
+    .attr("class", "check-mvp")
     .style("height", "17px")
     .style("width", "17px")
+    .style("font-size", "17px")
     .style("color", "black")
-    .style("display", "inline-block")
+    .style("cursor", "pointer")
+    .style("-webkit-user-select", "none")
+    .style("-moz-user-select", "none")
+    .style("-ms-user-select", "none")
 
   highlightDiv.append("div")
     .text("MVP Winners")
+    .attr("class", "mvp")
     .style("background-color", mvp.color)
+    .style("cursor", "pointer")
+    .style("-webkit-user-select", "none")
+    .style("-moz-user-select", "none")
+    .style("-ms-user-select", "none")
 
   highlightDiv.append("div")
     .text(" ")
 
   highlightDiv.append("div")
-    .append("input")
-    .attr("type", "checkbox")
-    .attr("class", "hof")
+    .text("✘")
+    .attr("class", "check-hof")
     .style("height", "17px")
     .style("width", "17px")
     .style("color", "black")
-    .style("display", "inline-block")
+    .style("cursor", "pointer")
+    .style("-webkit-user-select", "none")
+    .style("-moz-user-select", "none")
+    .style("-ms-user-select", "none")
 
   highlightDiv.append("div")
     .text("Hall of Famers")
+    .attr("class", "hof")
     .style("background-color", hof.color)
+    .style("cursor", "pointer")
+    .style("-webkit-user-select", "none")
+    .style("-moz-user-select", "none")
+    .style("-ms-user-select", "none")
 
       
     
@@ -216,8 +249,8 @@ function makeChart() {
 
   function generateChart(data) {
 
-    let dataset = data.filter(d => d.bwar >= 6);
-    // console.log(dataset);
+    let dataset = data.filter(d => d.bwar >= 8);
+    console.log(dataset);
     // let ids = dataset.map(d => d.id);
     // let unique_ids = ids.filter((d, i) => ids.indexOf(d) == i);
 
@@ -380,7 +413,7 @@ function makeChart() {
           d3.select("#tooltip")
             .append("div")
             .text("(click above for more stats!)")
-            .attr("font-size", "12px")
+            .attr("font-size", "14px")
             .attr("class", "note results")
         } else {
           if (selectedPoint != undefined) {
@@ -428,7 +461,7 @@ function makeChart() {
 
       context.save();
       if (d.selected) {
-        context.fillStyle = "#15B094"
+        context.fillStyle = "#3BD5E5"
       } else if (d.currentPlayer) {
         context.fillStyle = "#CE1515";
       } else if (d.mvp && mvp.on) {
@@ -480,10 +513,12 @@ function makeChart() {
     function mvpChange() {
       if (mvp.on) {
         mvp.on = false;
-        d3.select("input.mvp").attr("checked", "false");
+        d3.select(".check-mvp").text("✘");
+        // d3.select("input.mvp").attr("disabled", "false");
       } else {
         mvp.on = true;
-        d3.select("input.mvp").attr("checked", "true");
+        d3.select(".check-mvp").text("✔");
+        // d3.select("input.mvp").attr("disabled", "true");
       }
       drawPoints(dataset, r);
       resetted();
@@ -492,19 +527,20 @@ function makeChart() {
     function hofChange() {
       if (hof.on) {
         hof.on = false;
-        d3.select("input.hof").attr("checked", "false");
+        d3.select(".check-hof").text("✘");
       } else {
         hof.on = true;
-        d3.select("input.hof").attr("checked", "true");
+        d3.select(".check-hof").text("✔")
       }
       drawPoints(dataset, r);
       resetted();
     }
 
-    d3.select("input.mvp").on("change", mvpChange);
+    d3.select(".check-mvp").on("click", mvpChange);
     d3.select("div.mvp").on("click", mvpChange);
-    d3.select("input.hof").on("change", hofChange);
+    d3.select(".check-hof").on("click", hofChange);
     d3.select("div.hof").on("click", hofChange);
+
     function repeatLastEvent() {
       context.save();
       context.clearRect(0, 0, width, height);
@@ -580,7 +616,7 @@ function makeChart() {
     let clearButton = chart.append("button")
       .attr("class", "clear")
       .style("position", "absolute")
-      .style("left", (width - 134) + "px")
+      .style("left", (margin.left + width - 212) + "px")
       .style("top", (margin.top - 30) + "px")
       .text("X")
       .style("width", "16px")
@@ -591,6 +627,7 @@ function makeChart() {
       .style("padding", "1px")
       .style("color", "#474747")
       .style("background-color", "#B2B2B2")
+      .style("opacity", "0.8")
 
     clearButton.on("click", function () {
       searchBox.property("value", "");
@@ -601,7 +638,7 @@ function makeChart() {
       "label": "source: ",
       "text": "www.baseball-reference.com",
       "size": 20,
-      "link": "https://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=300&type=8&season=2018&month=0&season1=1871&ind=1&team=&rost=&age=&filter=&players=",
+      "link": "https://www.baseball-reference.com/leaders/WAR_bat_season.shtml",
       "font_family": "Calibri",
       "color": "#21480F"
     }
@@ -618,6 +655,7 @@ function makeChart() {
       .style("text-anchor", "start")
       .style("font-family", source.font_family)
       .style("font-style", "italic")
+      .style("font-weight", "bold")
       .style("fill", source.color)
       .style("text-shadow", "1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;");
 
