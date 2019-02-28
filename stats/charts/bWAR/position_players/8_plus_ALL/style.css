@@ -1,0 +1,75 @@
+.chart {
+  position: absolute;
+}
+
+#tooltip {
+  position: absolute;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 2px;
+  grid-auto-rows: 25px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 7px 5px 5px 5px rgba(0, 0, 0, 0.4);
+  box-shadow: 7px 7px 7px 7px rgba(0, 0, 0, 0.4);
+}
+
+#tooltip.hidden {
+  display: none;
+}
+
+#tooltip .header {
+  font-weight: bold;
+  font-size: 22px;
+  padding: 3px;
+}
+
+#tooltip > div.results {
+  font-weight: bold;
+  font-size: 21px;
+  padding: 3px;
+  color: #0E7B67;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a text:hover {
+  text-decoration: underline;
+}
+
+.hidden {
+  display: none;
+}
+
+#tooltip > div.note {
+  font-size: 13px;
+  font-weight: none;
+  color: black;
+  padding: 5px
+}
+
+#commentary {
+  top: 500;
+  left: 500;
+  width: 500;
+  height: 500;
+  background-color: "gray";
+}
+
+.mike-trout {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  z-index: 1;
+}
+
+.babe-ruth {
+  position: absolute;
+  width: 36px;
+  height: 70px;
+  z-index: 1;
+}
