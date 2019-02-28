@@ -101,11 +101,11 @@ function makeChart() {
   //   .style("display", "none");
 
   let tooltip = {
-    w: 400,
+    w: 450,
     h: 200,
-    left: margin.left + width - 400,
+    left: margin.left + width - 450,
     top: margin.top + 1,
-    pad: 10,
+    pad: 15,
     bgcolor: "#AEAFBC",
     opacity: 0.92,
     stroke: "black",
@@ -133,9 +133,9 @@ function makeChart() {
   let highlightDiv = chart.append("div")
       .attr("class", "highlight")
       .style("position", "absolute")
-      .style("right", (margin.right + 235) + "px")
-      .style("top", (margin.top - 20) + "px")
-      .style("width", "280px")
+      .style("left", (margin.left + width - 550) + "px")
+      .style("top", (margin.top - 21) + "px")
+      .style("width", "320px")
       .style("height", "14px")
       // .style("background-color", "gray")
       .style("opacity", 0.75)
@@ -144,28 +144,31 @@ function makeChart() {
       .style("grid-template-rows", "repeat(2, 18px)")
       .style("row-gap", "0")
       .style("column-gap", "1px")
-      .style("font-size", "15px")
+      .style("font-size", "17px")
       .style("font-family", "Georgia")
       .style("font-weight", "bold")
 
     let mvp = {
-      color: "#63D85F",
+      color: "#A8C8A7",
       on: true,
     }
 
     let hof = {
-      color: "#F5C15E",
+      color: "#E1BF7F",
       on: false,
     } 
-
   
   highlightDiv.append("div")
     .text("✔")
     .attr("class", "check-mvp")
-    .style("height", "17px")
-    .style("width", "17px")
-    .style("font-size", "17px")
+    .style("height", "16px")
+    .style("width", "16px")
     .style("color", "black")
+    .style("display", "flex")
+    .style("border", "2px solid black")
+    .style("align-items", "center")
+    .style("justify-content", "center")
+    .style("top", "50%")
     .style("cursor", "pointer")
     .style("-webkit-user-select", "none")
     .style("-moz-user-select", "none")
@@ -184,11 +187,15 @@ function makeChart() {
     .text(" ")
 
   highlightDiv.append("div")
-    .text("✘")
+    .text("🗙")
     .attr("class", "check-hof")
-    .style("height", "17px")
-    .style("width", "17px")
+    .style("height", "16px")
+    .style("width", "16px")
     .style("color", "black")
+    .style("display", "flex")
+    .style("border", "2px solid black")
+    .style("align-items", "center")
+    .style("justify-content", "center")
     .style("cursor", "pointer")
     .style("-webkit-user-select", "none")
     .style("-moz-user-select", "none")
@@ -250,7 +257,6 @@ function makeChart() {
   function generateChart(data) {
 
     let dataset = data.filter(d => d.bwar >= 8);
-    console.log(dataset);
     // let ids = dataset.map(d => d.id);
     // let unique_ids = ids.filter((d, i) => ids.indexOf(d) == i);
 
@@ -296,7 +302,7 @@ function makeChart() {
     yAxisGroup.append("text")
       .attr("transform", "rotate(-90)")
       .attr("x", -height / 2)
-      .attr("y", 26 - margin.left)
+      .attr("y", 36 - margin.left)
       .attr("dy", "0.30em")
       .style("font-size", 30)
       .style("text-anchor", "middle")
@@ -310,11 +316,11 @@ function makeChart() {
 
     d3.selectAll(".tick text")
       .style("font-size", 19)
-      .style("font-family", "Calibri")
+      .style("font-family", "Bookman")
       .style("font-weight", "bold");
 
     /////  ZOOM  /////
-    let r = 7, k = [1, 13], pad = 100, tk = 1;
+    let r = 8, k = [1, 13], pad = 100, tk = 1;
     let rScale = d3.scaleLinear().domain(k).range([r, 5]),
       zoomedR = 5;
     let tScale = d3.scaleLinear().domain(k).range([19, 17]);
@@ -363,8 +369,6 @@ function makeChart() {
                 selectedPoint.selected = true;
                 drawPoint(selectedPoint, r);
                 d3.select("#tooltip").classed("hidden", false)
-                console.log(d3.select("#tooltip").classed("hidden"));
-                console.log(selectedPoint);
               }
             } else {
               selectedPoint.selected = false;
@@ -395,20 +399,26 @@ function makeChart() {
                 .attr("href", year_url)
                 .attr("target", "_blank")
                 .text(d.year)
-                .style("", "underlined");
+                .style("font-size", "26px");
               d3.select("span#bwar")
-                .text(d3.format("0.1f")(d.bwar));
+                .text(d3.format("0.1f")(d.bwar))
+                .style("font-size", "26px");
               // d3.select("#tooltip").append("div")
               //   .text("Player\tOverall Rank");
             }
             let player_url = "https://www.baseball-reference.com/players/" + d.id[0] + "/" + d.id + ".shtml";
+            let label = d.name;
+            if (d.hof) label += "+";
+            if (d.mvp) label += " (MVP)";
+            label += ", " + d.team;
             d3.select("#tooltip")
               .append("div")
               .attr("class", "results")
               .append("a")
               .attr("href", player_url)
               .attr("target", "_blank")
-              .text(d.name + ", " + d.team);
+              .text(label)
+              .style("font-size", "26px");
           })
           d3.select("#tooltip")
             .append("div")
@@ -479,7 +489,7 @@ function makeChart() {
       context.stroke();
       context.restore();
     }
-    // console.log(dataset.filter(d => d.PA <= 400))
+
     function highlightPlayer(name) {
       let seasons = dataset.filter(d => name == d.name);
       let other_seasons = [];
@@ -513,7 +523,7 @@ function makeChart() {
     function mvpChange() {
       if (mvp.on) {
         mvp.on = false;
-        d3.select(".check-mvp").text("✘");
+        d3.select(".check-mvp").text("🗙");
         // d3.select("input.mvp").attr("disabled", "false");
       } else {
         mvp.on = true;
@@ -527,7 +537,7 @@ function makeChart() {
     function hofChange() {
       if (hof.on) {
         hof.on = false;
-        d3.select(".check-hof").text("✘");
+        d3.select(".check-hof").text("🗙");
       } else {
         hof.on = true;
         d3.select(".check-hof").text("✔")
@@ -599,6 +609,7 @@ function makeChart() {
       .style("font-size", "20px")
       .style("font-family", "Palatino")
 
+    dataset.sort((d, e) => e.bwar - d.bwar);
     let names = dataset.map(d => d.name);
     unique_names = names.filter((d, i) => i == names.indexOf(d));
     d3.select("datalist#names")
@@ -616,10 +627,10 @@ function makeChart() {
     let clearButton = chart.append("button")
       .attr("class", "clear")
       .style("position", "absolute")
-      .style("left", (margin.left + width - 212) + "px")
+      .style("left", (margin.left + width - 215) + "px")
       .style("top", (margin.top - 30) + "px")
-      .text("X")
-      .style("width", "16px")
+      .text("☓")
+      .style("width", "20px")
       .style("height", "22px")
       .style("font-size", "17px")
       .style("font-weight", "bold")
@@ -627,7 +638,7 @@ function makeChart() {
       .style("padding", "1px")
       .style("color", "#474747")
       .style("background-color", "#B2B2B2")
-      .style("opacity", "0.8")
+      .style("opacity", "0.9")
 
     clearButton.on("click", function () {
       searchBox.property("value", "");
@@ -640,7 +651,7 @@ function makeChart() {
       "size": 20,
       "link": "https://www.baseball-reference.com/leaders/WAR_bat_season.shtml",
       "font_family": "Calibri",
-      "color": "#21480F"
+      "color": "#08093D"
     }
 
     g.append("a")

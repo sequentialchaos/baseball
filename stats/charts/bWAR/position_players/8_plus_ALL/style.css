@@ -6,7 +6,7 @@
   position: absolute;
   display: grid;
   grid-template-columns: 1fr;
-  grid-gap: 2px;
+  grid-gap: 6px;
   grid-auto-rows: 25px;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
