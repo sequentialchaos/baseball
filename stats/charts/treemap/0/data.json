@@ -1,5 +1,5 @@
 {
-  "name": "MLB 2018 Plate Appearance Results",
+  "name": "2018 MLB Plate Appearance Results",
   "children": [
     {
       "name": "Not in play",
@@ -8,11 +8,11 @@
           "name": "Strikeouts",
           "children": [
             {
-              "name": "Strikeouts Looking",
+              "name": "Looking",
               "value": 9534
             },
             {
-              "name": "Strikeouts Swinging",
+              "name": "Swinging",
               "value": 31673
             }
           ]
@@ -21,11 +21,11 @@
           "name": "Walks",
           "children": [
             {
-              "name": "Intentional Walks",
+              "name": "Intentional",
               "value": 929
             },
             {
-              "name": "Unintentional Walks",
+              "name": "Unintentional",
               "value": 14757
             }
           ]
@@ -73,10 +73,6 @@
                 {
                   "name": "Triples", 
                   "value": 88
-                },
-                {
-                  "name": "Home runs", 
-                  "value": 0
                 }
               ]
             },
@@ -175,10 +171,6 @@
                 {
                   "name": "Triples", 
                   "value": 1
-                },
-                {
-                  "name": "Home runs", 
-                  "value": 0
                 }
               ]
             },
