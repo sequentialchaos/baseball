@@ -1,0 +1,194 @@
+{
+  "name": "MLB 2018 Plate Appearance Results",
+  "children": [
+    {
+      "name": "Not in play",
+      "children": [
+        {
+          "name": "Strikeouts",
+          "children": [
+            {
+              "name": "Strikeouts Looking",
+              "value": 9534
+            },
+            {
+              "name": "Strikeouts Swinging",
+              "value": 31673
+            }
+          ]
+        },
+        {
+          "name": "Walks",
+          "children": [
+            {
+              "name": "Intentional Walks",
+              "value": 929
+            },
+            {
+              "name": "Unintentional Walks",
+              "value": 14757
+            }
+          ]
+        },
+        {
+          "name": "Hit By Pitch", 
+          "value": 1922
+        },
+        {
+          "name": "Interference",
+          "children": [
+            {
+              "name": "Catcher Interference",
+              "value": 40
+            },
+            {
+              "name": "Batter Interference",
+              "value": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "In play",
+      "children": [
+        {
+          "name": "Ground Balls",
+          "children": [
+            {
+              "name": "Outs",
+              "value": 41136
+            },
+            {
+              "name": "Hits",
+              "children": [
+                {
+                  "name": "Singles", 
+                  "value": 12448
+                },
+                {
+                  "name": "Doubles", 
+                  "value": 1109
+                },
+                {
+                  "name": "Triples", 
+                  "value": 88
+                },
+                {
+                  "name": "Home runs", 
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "Errors",
+              "value": 1431
+            }
+          ]
+        },
+        {
+          "name": "Line Drives",
+          "children": [
+            {
+              "name": "Outs",
+              "value": 11925
+            },
+            {
+              "name": "Hits",
+              "children": [
+                {
+                  "name": "Singles", 
+                  "value": 12539
+                },
+                {
+                  "name": "Doubles", 
+                  "value": 5782
+                },
+                {
+                  "name": "Triples", 
+                  "value": 519
+                },
+                {
+                  "name": "Home runs", 
+                  "value": 704
+                }
+              ]
+            },
+            {
+              "name": "Errors",
+              "value": 56
+            }
+          ]
+        },
+        {
+          "name": "Fly Balls",
+          "children": [
+            {
+              "name": "Outs",
+              "value": 21493
+            },
+            {
+              "name": "Hits",
+              "children": [
+                {
+                  "name": "Singles", 
+                  "value": 1188
+                },
+                {
+                  "name": "Doubles", 
+                  "value": 1327
+                },
+                {
+                  "name": "Triples", 
+                  "value": 239
+                },
+                {
+                  "name": "Home runs", 
+                  "value": 4881
+                }
+              ]
+            },
+            {
+              "name": "Errors",
+              "value": 53
+            }
+          ]
+        },
+        {
+          "name": "Pop Ups",
+          "children": [
+            {
+              "name": "Outs",
+              "value": 9095
+            },
+            {
+              "name": "Hits",
+              "children": [
+                {
+                  "name": "Singles", 
+                  "value": 147
+                },
+                {
+                  "name": "Doubles", 
+                  "value": 46
+                },
+                {
+                  "name": "Triples", 
+                  "value": 1
+                },
+                {
+                  "name": "Home runs", 
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "Errors",
+              "value": 36
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

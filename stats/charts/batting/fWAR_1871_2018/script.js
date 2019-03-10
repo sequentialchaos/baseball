@@ -197,8 +197,8 @@ d3.csv(csvfile, function(d, i) {
       .style("font-weight", "bold");
   
   /////  ZOOM  /////
-  let r = 5, k = [1, 13], pad = 100, tk = 1;
-  let rScale = d3.scaleLinear().domain(k).range([r, 2]),
+  let r = 7, k = [1, 13], pad = 100, tk = 1;
+  let rScale = d3.scaleLinear().domain(k).range([r, 4]),
       zoomedR = 5;
   let tScale = d3.scaleLinear().domain(k).range([19, 17]);
   let zoom = d3.zoom()

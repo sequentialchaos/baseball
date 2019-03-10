@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>D3: Force layout</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <style type="text/css">
+    /* No style rules here yet */
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+
+    //Width and height
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+
+    let csvfile = "2019SKED.csv?2";
+    d3.csv(csvfile, function (d, i) {
+      let parseDate = d3.timeParse("%Y%m%d");
+      let date = parseDate(d.date);
+      return {
+        row: i,
+        date: date,
+        weekday: d.weekday,
+        timeOfDay: d.timeOfDay,
+        away: {
+          abbr: d.awayAbbr,
+          league: d.awayLg,
+          gameNum: +d.awayNum
+        },
+        home: {
+          abbr: d.homeAbbr,
+          league: d.homeLg,
+          gameNum: +d.homeNum
+        }
+      };
+    }).then(function (data) {
+      let dataset = {};
+      dataset.nodes = data;
+      dataset.edges = [];
+      console.log(dataset);
+      let abbreviationsMap = dataset.nodes.map(d => d.away.abbr);
+      let abbreviations = ["SEA", "OAK"];//abbreviationsMap.filter((d, i) => i == abbreviationsMap.indexOf(d));
+      abbreviations.forEach(abbr => {
+        let games = dataset.nodes.filter(d => d.away.abbr == abbr || d.home.abbr == abbr);
+        games.forEach((game, i) => {
+          if (i < games.length - 1) {
+            let edge = {
+              source: game.row,
+              target: games[i + 1].row
+            }
+            dataset.edges.push(edge);
+          }
+        })
+      })
+      console.log(dataset);
+
+      //Initialize a simple force layout, using the nodes and edges in dataset
+      let force = d3.forceSimulation(dataset.nodes)
+        .force("charge", d3.forceManyBody())
+        .force("link", d3.forceLink(dataset.edges))
+        .force("center", d3.forceCenter().x(w / 2).y(h / 2));
+
+      let colors = d3.scaleOrdinal(d3.schemeCategory10);
+      console.log(colors);
+      //Create SVG element
+      let svg = d3.select("body")
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h);
+
+      //Create edges as lines
+      let edges = svg.selectAll("line")
+        .data(dataset.edges)
+        .enter()
+        .append("line")
+        .style("stroke", "#ccc")
+        .style("stroke-width", 1);
+
+      //Create nodes as circles
+      let nodes = svg.selectAll("circle")
+        .data(dataset.nodes)
+        .enter()
+        .append("circle")
+        .attr("r", 10)
+        .style("fill", function (d, i) {
+          return colors(i);
+        })
+        .call(d3.drag()  //Define what to do on drag events
+          .on("start", dragStarted)
+          .on("drag", dragging)
+          .on("end", dragEnded));
+
+      //Add a simple tooltip
+      nodes.append("title")
+        .text(function (d) {
+          return d.home.abbr + " / " + d.away.abbr + "\n" + d.home.gameNum + " / " + d.away.gameNum;
+        });
+
+      //Every time the simulation "ticks", this will be called
+      force.on("tick", function () {
+
+        edges.attr("x1", function (d) { return d.source.x; })
+          .attr("y1", function (d) { return d.source.y; })
+          .attr("x2", function (d) { return d.target.x; })
+          .attr("y2", function (d) { return d.target.y; });
+
+        nodes.attr("cx", function (d) { return d.x; })
+          .attr("cy", function (d) { return d.y; });
+
+      });
+
+      //Define drag event functions
+      function dragStarted(d) {
+        if (!d3.event.active) force.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+
+      function dragging(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      }
+
+      function dragEnded(d) {
+        if (!d3.event.active) force.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
+
+    })
+  </script>
+</body>
+
+</html>

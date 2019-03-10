@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Braves Schedule</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <style type="text/css">
+    /* No style rules here yet */
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+
+    //Width and height
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+
+    
+
+    let csvfile = "2019SKED.csv?2";
+    d3.csv(csvfile, function (d, i) {
+      let parseDate = d3.timeParse("%Y%m%d");
+      let date = parseDate(d.date);
+      return {
+        row: i,
+        date: date,
+        weekday: d.weekday,
+        timeOfDay: d.timeOfDay,
+        away: {
+          abbr: d.awayAbbr,
+          league: d.awayLg,
+          gameNum: +d.awayNum
+        },
+        home: {
+          abbr: d.homeAbbr,
+          league: d.homeLg,
+          gameNum: +d.homeNum
+        }
+      };
+    }).then(function (data) {
+      let dataset = {};
+      dataset.nodes = data;
+      dataset.edges = [];
+      console.log(dataset);
+      let abbreviationsMap = dataset.nodes.map(d => d.away.abbr);
+      let abbreviations = ["SEA", "OAK"];//abbreviationsMap.filter((d, i) => i == abbreviationsMap.indexOf(d));
+      // abbreviations.forEach(abbr => {
+      let abbr = "MIA";
+      let games = dataset.nodes.filter(d => d.away.abbr == abbr || d.home.abbr == abbr);
+      console.log(games);
+      let series = []
+      let entry = {};
+      let seriesLength = 0;
+      games.forEach((game, i) => {
+        seriesLength++;
+        let atHome;
+        let gameNum;
+        let opponent;
+        if (game.away.abbr != abbr) {
+          opponent = game.away.abbr;
+          atHome = true;
+        } else {
+          opponent = game.home.abbr;
+          atHome = false;
+        }
+        if (seriesLength == 1) {
+          entry.startDate = game.date;
+          entry.opponent = opponent;
+          entry.atHome = atHome;
+        }
+        if (i < games.length - 1) {
+          let nextGame = games[i + 1];
+          let nextOpponent;
+          if (nextGame.away.abbr != abbr) {
+            nextOpponent = nextGame.away.abbr;
+          } else {
+            nextOpponent = nextGame.home.abbr;
+          }
+
+          if (opponent != nextOpponent) {
+            entry.endDate = game.date;
+            entry.numGames = seriesLength;
+            series.push(entry);
+            seriesLength = 0;
+            entry = {};
+          }
+
+          let edge = {
+            source: game.row,
+            target: games[i + 1].row
+          }
+          dataset.edges.push(edge);
+        }
+      })
+      // })
+      console.log(dataset);
+      // console.log(opponents);
+      console.log(series);
+      let opponents = series.map(d => d.opponent);
+      let unique_opponents = opponents.filter((d, i) => i == opponents.indexOf(d))
+      console.log(unique_opponents)
+      for (let opp of unique_opponents) {
+
+      }
+    })
+  </script>
+</body>
+
+</html>
