@@ -132,8 +132,8 @@ d3.csv(csvfile, function(d, i) {
     index: i,
   };
 }).then(function(data) {
-  let dataset = data.filter(d => d.fwar >= 6);
-  // console.log(dataset);
+  let dataset = data.filter(d => d.fwar >= 8);
+  console.log(dataset);
   // let ids = dataset.map(d => d.id);
   // let unique_ids = ids.filter((d, i) => ids.indexOf(d) == i);
 
@@ -197,8 +197,8 @@ d3.csv(csvfile, function(d, i) {
       .style("font-weight", "bold");
   
   /////  ZOOM  /////
-  let r = 5, k = [1, 13], pad = 100, tk = 1;
-  let rScale = d3.scaleLinear().domain(k).range([r, 2]),
+  let r = 7, k = [1, 13], pad = 100, tk = 1;
+  let rScale = d3.scaleLinear().domain(k).range([r, 3]),
       zoomedR = 5;
   let tScale = d3.scaleLinear().domain(k).range([19, 17]);
   let zoom = d3.zoom()
